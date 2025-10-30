@@ -1,67 +1,72 @@
 /* --- ▼ 全体の基本設定 (ダークモード) ▼ --- */
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    margin: 20px;
-    background-color: #121212; /* メイン背景色 */
-    color: #e0e0e0; /* 基本テキスト色 */
+    /* スマホ用に余白を少し減らす */
+    margin: 10px; 
+    background-color: #121212; 
+    color: #e0e0e0; 
 }
 
 h1 {
-    border-bottom: 2px solid #e53935; /* 赤色の線 */
+    border-bottom: 2px solid #e53935; 
     padding-bottom: 5px;
-    color: #e53935; /* 赤色のテキスト */
+    color: #e53935; 
+    font-size: 1.8em; /* スマホ用に少し小さく */
 }
 
 h2 {
-    color: #f5f5f5; /* 白に近い色 */
+    color: #f5f5f5; 
 }
 
 /* --- ▼ 犯罪リスト ▼ --- */
 #crime-list-container {
-    background-color: #1e1e1e; /* やや明るい背景 */
-    border: 1px solid #333; /* 暗いボーダー */
-    padding: 15px;
+    background-color: #1e1e1e; 
+    border: 1px solid #333; 
+    padding: 10px; /* スマホ用に少し減らす */
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
 #crime-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 15px;
+    /* ▼▼▼ スマホ用の設定 (デフォルト) ▼▼▼ */
+    /* 2列 (1fr 1fr) グリッドに固定 */
+    grid-template-columns: 1fr 1fr;
+    gap: 10px; /* 隙間を少し減らす */
+    /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 }
 
 .crime-item {
     display: flex;
     flex-direction: column; 
     align-items: center; 
-    padding: 12px;
-    border: 1px solid #444; /* やや明るいボーダー */
+    padding: 10px; /* スマホ用に少し減らす */
+    border: 1px solid #444; 
     border-radius: 8px;
-    background-color: #2a2a2a; /* アイテムの背景 */
+    background-color: #2a2a2a; 
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     transition: background-color 0.2s, border-color 0.2s;
 }
 
 .crime-item:hover {
     background-color: #333;
-    border-color: #e53935; /* ホバー時に赤く */
+    border-color: #e53935; 
 }
 
 /* 犯罪名ラベル */
 .crime-item label.crime-name {
-    font-size: 1.1em;
+    font-size: 1.0em; /* スマホ用に少し小さく */
     font-weight: 500;
     margin-bottom: 12px;
     text-align: center;
     overflow-wrap: break-word;
     word-wrap: break-word; 
     width: 100%;
-    min-height: 2.2em; 
+    min-height: 2.4em; /* 2行分を確保 (font-size調整) */
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #f5f5f5; /* 犯罪名の色 */
+    color: #f5f5f5; 
 }
 
 /* --- ▼ 入力欄 (2人以下 / 3人以上) ▼ --- */
@@ -69,53 +74,103 @@ h2 {
     display: flex;
     justify-content: space-around; 
     width: 100%;
+    gap: 5px; /* 入力欄同士の隙間 */
 }
 
 .input-item {
     display: flex;
     flex-direction: column; 
     align-items: center;
+    /* 2列レイアウトで幅が狭くなるため、flex-growで均等に広げる */
+    flex-grow: 1;
 }
 
 .input-item label {
-    font-size: 0.9em;
-    color: #aaa; /* ラベルの色 (やや暗く) */
+    font-size: 0.85em; /* スマホ用に少し小さく */
+    color: #aaa; 
     margin-bottom: 4px;
 }
 
 /* 入力欄のスタイル */
 .input-item input[type="number"] {
-    width: 80px;
-    padding: 8px;
+    /* スマホ用に幅を % 指定に変更 (80pxだと2列で溢れるため) */
+    width: 90%; 
+    max-width: 80px; /* ただし最大80pxまで */
+    min-width: 50px; /* 最小幅 */
+    padding: 8px 4px; /* パディング調整 */
     text-align: center;
-    border: 1px solid #555; /* ボーダー色 */
-    background-color: #1e1e1e; /* 入力欄の背景 */
-    color: #f5f5f5; /* 入力文字の色 */
+    border: 1px solid #555; 
+    background-color: #1e1e1e; 
+    color: #f5f5f5; 
     border-radius: 4px;
     transition: border-color 0.2s, box-shadow 0.2s;
+    /* iOSでのズームを防ぐ */
+    font-size: 16px; 
 }
 
-/* 入力欄フォーカス時 (選択時) */
 .input-item input[type="number"]:focus {
     outline: none;
-    border-color: #e53935; /* 赤色ボーダー */
-    box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.4); /* 赤色グロー */
+    border-color: #e53935; 
+    box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.4); 
 }
 
 /* --- ▼ 合計金額 ▼ --- */
 .result {
     margin-top: 20px;
-    background-color: #1e1e1e; /* 背景 */
+    background-color: #1e1e1e; 
     padding: 20px;
-    border: 1px solid #e53935; /* 赤色ボーダー */
+    border: 1px solid #e53935; 
     border-radius: 8px;
     text-align: center;
-    box-shadow: 0 0 10px rgba(229, 57, 53, 0.2); /* 赤色グロー */
+    box-shadow: 0 0 10px rgba(229, 57, 53, 0.2); 
 }
 
 #total-amount {
     font-size: 2.5em;
     font-weight: bold;
-    color: #e53935; /* 合計金額を赤色に */
+    color: #e53935; 
     margin: 0;
 }
+
+
+/* --- ▼▼▼ レスポンシブ設定 (PC / タブレット) ▼▼▼ --- */
+/* 画面幅が768px以上になったら、こちらのスタイルを適用 */
+@media (min-width: 768px) {
+    body {
+        margin: 20px; /* PC用の余白に戻す */
+    }
+
+    h1 {
+        font-size: 2.2em; /* PC用のフォントサイズ */
+    }
+
+    #crime-list-container {
+        padding: 15px; /* PC用の余白 */
+    }
+
+    #crime-list {
+        /* PC用: 従来のauto-fitレイアウトに戻す */
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 15px; /* PC用の隙間 */
+    }
+    
+    .crime-item {
+        padding: 12px; /* PC用の余白 */
+    }
+    
+    .crime-item label.crime-name {
+        font-size: 1.1em; /* PC用のフォントサイズ */
+        min-height: 2.2em;
+    }
+
+    .input-item label {
+        font-size: 0.9em; /* PC用のフォントサイズ */
+    }
+
+    .input-item input[type="number"] {
+        width: 80px; /* PC用は80pxに固定 */
+        font-size: 14px; /* PC用は16pxでなくて良い */
+        padding: 8px;
+    }
+}
+/* --- ▲▲▲ レスポンシブ設定ここまで ▲▲▲ --- */
