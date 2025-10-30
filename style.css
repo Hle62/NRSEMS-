@@ -1,7 +1,7 @@
-/* --- ▼ 全体の基本設定 (ダークモード) ▼ --- */
+/* --- 全体の基本設定 (ダークモード) --- */
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    /* スマホ用に余白を少し減らす */
+    /* スマホ用に余白を減らす */
     margin: 10px; 
     background-color: #121212; 
     color: #e0e0e0; 
@@ -11,36 +11,35 @@ h1 {
     border-bottom: 2px solid #e53935; 
     padding-bottom: 5px;
     color: #e53935; 
-    font-size: 1.8em; /* スマホ用に少し小さく */
+    font-size: 1.8em; /* スマホ用のサイズ */
 }
 
 h2 {
     color: #f5f5f5; 
 }
 
-/* --- ▼ 犯罪リスト ▼ --- */
+/* --- 犯罪リスト --- */
 #crime-list-container {
     background-color: #1e1e1e; 
     border: 1px solid #333; 
-    padding: 10px; /* スマホ用に少し減らす */
+    padding: 10px; /* スマホ用に減らす */
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
 #crime-list {
     display: grid;
-    /* ▼▼▼ スマホ用の設定 (デフォルト) ▼▼▼ */
+    /* スマホ用の設定 (デフォルト) */
     /* 2列 (1fr 1fr) グリッドに固定 */
     grid-template-columns: 1fr 1fr;
-    gap: 10px; /* 隙間を少し減らす */
-    /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
+    gap: 10px; /* 隙間を減らす */
 }
 
 .crime-item {
     display: flex;
     flex-direction: column; 
     align-items: center; 
-    padding: 10px; /* スマホ用に少し減らす */
+    padding: 10px; /* スマホ用に減らす */
     border: 1px solid #444; 
     border-radius: 8px;
     background-color: #2a2a2a; 
@@ -55,7 +54,7 @@ h2 {
 
 /* 犯罪名ラベル */
 .crime-item label.crime-name {
-    font-size: 1.0em; /* スマホ用に少し小さく */
+    font-size: 1.0em; /* スマホ用に小さく */
     font-weight: 500;
     margin-bottom: 12px;
     text-align: center;
@@ -81,21 +80,20 @@ h2 {
     display: flex;
     flex-direction: column; 
     align-items: center;
-    /* 2列レイアウトで幅が狭くなるため、flex-growで均等に広げる */
     flex-grow: 1;
 }
 
 .input-item label {
-    font-size: 0.85em; /* スマホ用に少し小さく */
+    font-size: 0.85em; /* スマホ用に小さく */
     color: #aaa; 
     margin-bottom: 4px;
 }
 
 /* 入力欄のスタイル */
 .input-item input[type="number"] {
-    /* スマホ用に幅を % 指定に変更 (80pxだと2列で溢れるため) */
+    /* スマホ用に幅を % 指定に変更 */
     width: 90%; 
-    max-width: 80px; /* ただし最大80pxまで */
+    max-width: 80px; /* 最大80pxまで */
     min-width: 50px; /* 最小幅 */
     padding: 8px 4px; /* パディング調整 */
     text-align: center;
@@ -114,7 +112,7 @@ h2 {
     box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.4); 
 }
 
-/* --- ▼ 合計金額 ▼ --- */
+/* --- 合計金額 --- */
 .result {
     margin-top: 20px;
     background-color: #1e1e1e; 
@@ -133,8 +131,8 @@ h2 {
 }
 
 
-/* --- ▼▼▼ レスポンシブ設定 (PC / タブレット) ▼▼▼ --- */
-/* 画面幅が768px以上になったら、こちらのスタイルを適用 */
+/* --- レスポンシブ設定 --- */
+/* 画面幅が768px以上になったら、このスタイルを適用 */
 @media (min-width: 768px) {
     body {
         margin: 20px; /* PC用の余白に戻す */
@@ -169,8 +167,7 @@ h2 {
 
     .input-item input[type="number"] {
         width: 80px; /* PC用は80pxに固定 */
-        font-size: 14px; /* PC用は16pxでなくて良い */
+        font-size: 14px;
         padding: 8px;
     }
 }
-/* --- ▲▲▲ レスポンシブ設定ここまで ▲▲▲ --- */

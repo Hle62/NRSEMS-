@@ -1,20 +1,16 @@
-// ▼▼▼ いただいたURLを反映済みです ▼▼▼
 const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzyVRmC6iXVQL4Z_UjS6xoz7lpjfvv-C7gMAPGFyIfnumfkjbZv7S6Agj6NRMlDtXUJWg/exec';
-// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
 // グローバル変数として犯罪データを保持
 let crimeData = [];
 
 // DOM要素の取得
 const crimeListDiv = document.getElementById('crime-list');
-// ▼▼▼ interventionInput を削除 ▼▼▼
+// interventionInput を削除
 const totalAmountP = document.getElementById('total-amount');
 
 // ページ読み込み完了時に実行
 document.addEventListener('DOMContentLoaded', () => {
     fetchCrimeData(); // データを取得
-
-    // ▼▼▼ interventionInput のリスナーを削除 ▼▼▼
     
     // リスト内の数値入力が変更されたら再計算
     crimeListDiv.addEventListener('input', (event) => {
@@ -27,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * 1. GASから犯罪データを非同期で取得 (変更なし)
+ * 1. GASから犯罪データを非同期で取得
  */
 async function fetchCrimeData() {
     try {
@@ -45,8 +41,7 @@ async function fetchCrimeData() {
 }
 
 /**
- * 2. 取得したデータでHTML（2つの入力欄リスト）を生成
- * (▼▼▼ ロジック大幅変更 ▼▼▼)
+ * 2. 取得したデータでHTMLを生成
  */
 function populateCrimeList() {
     crimeListDiv.innerHTML = ''; // "読み込み中..."を消去
@@ -67,7 +62,6 @@ function populateCrimeList() {
         const nameLabel = document.createElement('label');
         nameLabel.classList.add('crime-name');
         nameLabel.textContent = crime.name;
-        // nameLabel.htmlFor には設定しない (2つの入力欄があるため)
 
         // 2つの入力欄をまとめるコンテナ
         const inputGroup = document.createElement('div');
@@ -124,11 +118,9 @@ function populateCrimeList() {
 
 /**
  * 3. 合計金額を計算して表示
- * (▼▼▼ ロジック大幅変更 ▼▼▼)
  */
 function calculateTotal() {
     let total = 0;
-    // ▼▼▼ interventionCount を削除 ▼▼▼
     
     // "2人以下" の全入力欄を計算
     const lowCountInputs = document.querySelectorAll('.low-count-input');
