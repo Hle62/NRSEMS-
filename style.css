@@ -39,12 +39,13 @@ h1, h2 {
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 
-    /* 縦スクロールの代わりに、横に折り返す設定 */
+    /* Flexboxで横並び・折り返し */
     display: flex;
     flex-wrap: wrap;
     gap: 12px; /* アイテム間の隙間 */
 }
 
+/* --- ▼ ここの設定を変更しました ▼ --- */
 .crime-item {
     display: flex;
     flex-direction: column; /* 要素を縦に並べる */
@@ -53,11 +54,23 @@ h1, h2 {
     border: 1px solid #eee;
     border-radius: 8px;
     background-color: #fafafa;
-    
-    /* アイテムの幅 (画面サイズに応じて調整してください) */
-    width: 140px; 
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     transition: background-color 0.2s;
+
+    /* * 固定幅 'width: 140px;' を削除 
+     */
+
+    /*
+     * アイテムの伸縮・折り返しの設定
+     * flex-basis: 140px; -> 基本の幅は140px
+     * flex-grow: 1;      -> スペースが余ったら伸びて埋める
+     * flex-shrink: 1;    -> スペースが足りない時に（多少）縮む
+     * min-width: 120px;  -> どんなに縮んでも120pxは維持する
+     */
+    flex-basis: 140px;
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 120px; 
 }
 
 .crime-item:hover {
@@ -69,7 +82,7 @@ h1, h2 {
     font-weight: 500;
     margin-bottom: 8px; /* 入力欄との隙間 */
     text-align: center;
-    word-break: keep-all; /* 犯罪名が改行されすぎないように */
+    word-break: keep-all; 
 }
 
 /* 個数入力欄のスタイル */
