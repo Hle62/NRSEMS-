@@ -41,6 +41,7 @@
          */
         async function fetchCrimesAndBuildUI() {
             try {
+                // GETリクエスト
                 const response = await fetch(GAS_WEB_APP_URL, {
                     method: 'GET'
                 });
@@ -52,9 +53,13 @@
                 const text = await response.text();
                 const data = JSON.parse(text);
                 
-                if (data.error || !data.crimeList) {
-                     // GASのLoggerでエラーを確認してください
-                     throw new Error(`GAS Script Error: ${data.error || 'リストデータが見つかりません'}`);
+                if (data.error) {
+                     // GASでエラーが発生した場合（例：シート名間違い）
+                     throw new Error(`GAS Script Error: ${data.error}`);
+                }
+                if (!data.crimeList) {
+                     // データ構造が不正な場合
+                     throw new Error('GASからのデータ構造が不正です。');
                 }
 
                 crimeListElement.classList.remove('loading');
@@ -117,6 +122,7 @@
             });
 
             try {
+                // POSTリクエスト
                 const response = await fetch(GAS_WEB_APP_URL, {
                     method: 'POST',
                     headers: {
