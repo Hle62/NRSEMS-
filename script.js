@@ -1,4 +1,4 @@
-// ▼▼▼ いただいたURLを反映しました ▼▼▼
+// ▼▼▼ いただいたURLを反映済みです ▼▼▼
 const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzyVRmC6iXVQL4Z_UjS6xoz7lpjfvv-C7gMAPGFyIfnumfkjbZv7S6Agj6NRMlDtXUJWg/exec';
 // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // リスト内の数値入力が変更されたら再計算
     crimeListDiv.addEventListener('input', (event) => {
-        // イベント発生源が個数入力欄（crime-count-inputクラスを持つ）の場合のみ計算
         if (event.target.classList.contains('crime-count-input')) {
             calculateTotal();
         }
@@ -62,6 +61,11 @@ function populateCrimeList() {
         const crimeItem = document.createElement('div');
         crimeItem.classList.add('crime-item');
         
+        // 犯罪名ラベル
+        const label = document.createElement('label');
+        label.htmlFor = `crime-count-${index}`; // 対応する入力欄のidを指定
+        label.textContent = crime.name;
+
         // 個数入力欄を作成
         const countInput = document.createElement('input');
         countInput.type = 'number';
@@ -74,25 +78,10 @@ function populateCrimeList() {
         // HTMLのdata属性に金額データを埋め込む
         countInput.dataset.lowAmount = low;
         countInput.dataset.highAmount = high;
-
-        // 犯罪名と金額情報
-        const crimeInfoDiv = document.createElement('div');
-        crimeInfoDiv.classList.add('crime-info');
         
-        const label = document.createElement('label');
-        label.htmlFor = `crime-count-${index}`; // 対応する入力欄のidを指定
-        label.textContent = crime.name;
-
-        const amountInfo = document.createElement('div');
-        amountInfo.classList.add('amount-info');
-        amountInfo.textContent = `(2人以下: ${low.toLocaleString()} / 3人以上: ${high.toLocaleString()})`;
-        
-        crimeInfoDiv.appendChild(label);
-        crimeInfoDiv.appendChild(amountInfo);
-
-        // 要素をDOMに追加 (入力欄を先に追加)
+        // ラベル -> 入力欄 の順で追加
+        crimeItem.appendChild(label);
         crimeItem.appendChild(countInput);
-        crimeItem.appendChild(crimeInfoDiv);
         crimeListDiv.appendChild(crimeItem);
     });
 }
