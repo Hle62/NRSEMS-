@@ -2,159 +2,30 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>スプレッドシート連携 犯罪電卓</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
-        h1 { border-bottom: 2px solid #ccc; padding-bottom: 10px; }
-        .crime-item { border: 1px solid #eee; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
-        .crime-item label { margin-right: 15px; }
-        #crime-list { min-height: 50px; }
-        .loading { color: gray; font-style: italic; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px; margin-top: 10px; }
-        #result-display { margin-top: 20px; padding: 15px; border: 2px solid #333; font-size: 24px; font-weight: bold; background-color: #f9f9f9; text-align: center; }
-        .alert { color: red; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>犯罪電卓</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>スプレッドシート連携 犯罪電卓</h1>
-
-    <h2>犯罪ごとの介入人数と金額の選択</h2>
+    <h1>犯罪電卓</h1>
     
-    <div id="crime-list" class="loading">
-        スプレッドシートから犯罪リストを読み込み中...
-    </div>
-    
-    <button id="calculate-button">合計金額を計算</button>
-
-    <div id="result-display">
-        合計金額: <span id="result-amount">0</span> 円
+    <div class="controls">
+        <label for="intervention-count">介入人数:</label>
+        <input type="number" id="intervention-count" value="1" min="1">
     </div>
 
-    <script>
-        // 🚨 【最重要】ここに新しいGASウェブアプリのURLを貼り付けてください 🚨
-        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz1wbDDBgJ6uWNhAWF1ks7K-vhP85JiOjl1eN31Kd8w0kRTon7dBg2J3scSOm9ZFpP8LA/exec';
-        const crimeListElement = document.getElementById('crime-list');
-        const resultAmountSpan = document.getElementById('result-amount');
+    <div id="crime-list-container">
+        <h3>犯罪を選択してください</h3>
+        <div id="crime-list">
+            <p>データを読み込み中...</p>
+        </div>
+    </div>
 
-        /**
-         * GASから犯罪名リストを取得し、UIを動的に構築する
-         */
-        async function fetchCrimesAndBuildUI() {
-            try {
-                // GETリクエスト
-                const response = await fetch(GAS_WEB_APP_URL, {
-                    method: 'GET'
-                });
+    <div class="result">
+        <h2>合計金額</h2>
+        <p id="total-amount">0</p>
+    </div>
 
-                if (!response.ok) {
-                    throw new Error(`HTTP status ${response.status}`);
-                }
-                
-                const text = await response.text();
-                const data = JSON.parse(text);
-                
-                if (data.error) {
-                     // GASでエラーが発生した場合（例：シート名間違い）
-                     throw new Error(`GAS Script Error: ${data.error}`);
-                }
-                if (!data.crimeList) {
-                     // データ構造が不正な場合
-                     throw new Error('GASからのデータ構造が不正です。');
-                }
-
-                crimeListElement.classList.remove('loading');
-                crimeListElement.innerHTML = '';
-                
-                data.crimeList.forEach((crimeName, index) => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'crime-item';
-                    itemDiv.innerHTML = `
-                        <input type="checkbox" id="crime-${index}" name="crime" value="${crimeName}">
-                        <label for="crime-${index}"><strong>${crimeName}</strong></label>
-                        <br>
-                        <fieldset style="display: inline-block; margin-top: 5px;">
-                            <legend>介入人数</legend>
-                            <label>
-                                <input type="radio" name="intervention-${index}" value="2_or_less" checked> 2人以下
-                            </label>
-                            <label>
-                                <input type="radio" name="intervention-${index}" value="3_or_more"> 3人以上
-                            </label>
-                        </fieldset>
-                    `;
-                    crimeListElement.appendChild(itemDiv);
-                });
-
-            } catch (error) {
-                console.error('リスト取得エラー:', error);
-                resultAmountSpan.textContent = 'エラー';
-                crimeListElement.innerHTML = `<span class="alert">リストの読み込みに失敗しました: ${error.message}</span>`;
-            }
-        }
-
-        /**
-         * 計算を実行する
-         */
-        document.getElementById('calculate-button').addEventListener('click', async () => {
-            const checkedCrimes = document.querySelectorAll('input[name="crime"]:checked');
-            const dataToSend = [];
-
-            resultAmountSpan.textContent = '計算中...';
-            resultAmountSpan.classList.remove('alert');
-
-            if (checkedCrimes.length === 0) {
-                resultAmountSpan.textContent = '0';
-                alert('犯罪名を一つ以上選択してください。');
-                return;
-            }
-
-            checkedCrimes.forEach(checkbox => {
-                const crimeName = checkbox.value;
-                const index = checkbox.id.split('-')[1];
-                
-                const selectedTypeElement = document.querySelector(`input[name="intervention-${index}"]:checked`);
-                const interventionType = selectedTypeElement ? selectedTypeElement.value : '2_or_less';
-
-                dataToSend.push({
-                    crime: crimeName,
-                    type: interventionType
-                });
-            });
-
-            try {
-                // POSTリクエスト
-                const response = await fetch(GAS_WEB_APP_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                    },
-                    body: JSON.stringify({
-                        selected_crimes: dataToSend
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP status ${response.status}`);
-                }
-                
-                const text = await response.text();
-                const data = JSON.parse(text);
-
-                if (data.error) {
-                     throw new Error(`GAS Script Error: ${data.error}`);
-                }
-
-                resultAmountSpan.textContent = data.total_amount.toLocaleString();
-
-            } catch (error) {
-                console.error('計算エラー:', error);
-                resultAmountSpan.textContent = 'エラー';
-                resultAmountSpan.classList.add('alert');
-                alert('計算中にエラーが発生しました。コンソールとGASのログを確認してください。');
-            }
-        });
-
-        fetchCrimesAndBuildUI();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
