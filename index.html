@@ -31,7 +31,7 @@
     </div>
 
     <script>
-        // 🚨 【更新済み】新しいGASウェブアプリのURL
+        // 🚨 【最重要】ここに新しいGASウェブアプリのURLを貼り付けてください 🚨
         const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyEkrHd4NKR5WMnYpq41PNAqrSOCx6GYiNxFE1SmpMsoU4TmAZ8y1FfbyFHm8ilfYyY-A/exec';
         const crimeListElement = document.getElementById('crime-list');
         const resultAmountSpan = document.getElementById('result-amount');
@@ -41,7 +41,6 @@
          */
         async function fetchCrimesAndBuildUI() {
             try {
-                // GETリクエストで犯罪名のリストを取得
                 const response = await fetch(GAS_WEB_APP_URL, {
                     method: 'GET'
                 });
@@ -61,7 +60,6 @@
                 crimeListElement.classList.remove('loading');
                 crimeListElement.innerHTML = '';
                 
-                // 犯罪名ごとにチェックボックスとラジオボタンを生成
                 data.crimeList.forEach((crimeName, index) => {
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'crime-item';
@@ -105,12 +103,10 @@
                 return;
             }
 
-            // 選択された犯罪名とその介入人数タイプを収集
             checkedCrimes.forEach(checkbox => {
                 const crimeName = checkbox.value;
                 const index = checkbox.id.split('-')[1];
                 
-                // 該当するラジオボタングループから選択された値を取得
                 const selectedTypeElement = document.querySelector(`input[name="intervention-${index}"]:checked`);
                 const interventionType = selectedTypeElement ? selectedTypeElement.value : '2_or_less';
 
@@ -121,7 +117,6 @@
             });
 
             try {
-                // POSTリクエストでGASにデータを送信
                 const response = await fetch(GAS_WEB_APP_URL, {
                     method: 'POST',
                     headers: {
@@ -136,7 +131,6 @@
                     throw new Error(`HTTP status ${response.status}`);
                 }
                 
-                // GASからのJSONテキストをパース
                 const text = await response.text();
                 const data = JSON.parse(text);
 
@@ -144,7 +138,6 @@
                      throw new Error(`GAS Script Error: ${data.error}`);
                 }
 
-                // 結果を表示
                 resultAmountSpan.textContent = data.total_amount.toLocaleString();
 
             } catch (error) {
@@ -155,7 +148,6 @@
             }
         });
 
-        // ページロード時に犯罪リストを取得してUIを構築
         fetchCrimesAndBuildUI();
     </script>
 </body>
