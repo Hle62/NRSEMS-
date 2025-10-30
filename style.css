@@ -31,34 +31,38 @@ h1, h2 {
     border-radius: 4px;
 }
 
-/* --- ▼ 犯罪リストのスタイル (CSS Gridに変更) ▼ --- */
+/* --- ▼ 修正箇所 ▼ --- */
+
+/* リスト全体の「外枠」のスタイル */
 #crime-list-container {
     background-color: #fff;
     border: 1px solid #ddd;
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
 
-    /* * Flexboxの代わりにGridを使用
-     */
+/* * 犯罪アイテムを「直接」囲む #crime-list に
+ * Gridレイアウトを適用します (こちらが正しい指定)
+ */
+#crime-list {
     display: grid;
     
-    /* * 画面幅いっぱいに、最低でも130pxの幅の列を
-     * できるだけ多く自動的に配置（auto-fit）する
-     * 1fr は「残りのスペースを均等に埋める」という意味
-     */
+    /* 画面幅いっぱいに、最低でも130pxの幅の列を
+       できるだけ多く自動的に配置（auto-fit）する */
     grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     
     gap: 12px; /* アイテム間の隙間 */
 }
 
+/* --- ▲ 修正箇所 ▲ --- */
+
+
+/* 各犯罪アイテムのスタイル (変更なし) */
 .crime-item {
-    /* * Gridアイテムは自動的にセルの幅になるため、
-     * flex-basis, grow, shrink, min-width 等の指定は不要
-     */
     display: flex;
-    flex-direction: column; /* 要素を縦に並べる（ラベルと入力欄）*/
-    align-items: center; /* 中央揃え */
+    flex-direction: column; 
+    align-items: center; 
     padding: 12px;
     border: 1px solid #eee;
     border-radius: 8px;
@@ -66,8 +70,6 @@ h1, h2 {
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     transition: background-color 0.2s;
 }
-/* --- ▲ ここまで変更 ▲ --- */
-
 
 .crime-item:hover {
     background-color: #f1f1f1;
@@ -76,12 +78,11 @@ h1, h2 {
 .crime-item label {
     font-size: 1.0em;
     font-weight: 500;
-    margin-bottom: 8px; /* 入力欄との隙間 */
+    margin-bottom: 8px; 
     text-align: center;
     word-break: keep-all; 
 }
 
-/* 個数入力欄のスタイル */
 .crime-item input[type="number"] {
     width: 80px;
     padding: 8px;
