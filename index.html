@@ -31,7 +31,7 @@
     </div>
 
     <script>
-        // 🚨 【設定済み】デプロイされたGASウェブアプリのURL
+        // 🚨 【更新済み】新しいGASウェブアプリのURL
         const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzDjbV4eS9JyyXv7RLXTDeSyk2YKt9ug7_8cC8S_4nBSnVaGvvkPs4tKW4hjOwv61uUPA/exec';
         const crimeListElement = document.getElementById('crime-list');
         const resultAmountSpan = document.getElementById('result-amount');
@@ -54,6 +54,7 @@
                 const data = JSON.parse(text);
                 
                 if (data.error || !data.crimeList) {
+                     // GASのLoggerでエラーを確認してください
                      throw new Error(`GAS Script Error: ${data.error || 'リストデータが見つかりません'}`);
                 }
 
@@ -83,6 +84,7 @@
 
             } catch (error) {
                 console.error('リスト取得エラー:', error);
+                resultAmountSpan.textContent = 'エラー';
                 crimeListElement.innerHTML = `<span class="alert">リストの読み込みに失敗しました: ${error.message}</span>`;
             }
         }
@@ -110,7 +112,7 @@
                 
                 // 該当するラジオボタングループから選択された値を取得
                 const selectedTypeElement = document.querySelector(`input[name="intervention-${index}"]:checked`);
-                const interventionType = selectedTypeElement ? selectedTypeElement.value : '2_or_less'; // デフォルト値
+                const interventionType = selectedTypeElement ? selectedTypeElement.value : '2_or_less';
 
                 dataToSend.push({
                     crime: crimeName,
