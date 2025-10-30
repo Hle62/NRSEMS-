@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>スプレッドシート連携 犯罪電卓</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+        fieldset { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; }
+        legend { font-weight: bold; padding: 0 10px; }
+        #crime-list label { display: block; margin-bottom: 5px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px; }
+        #result-display { margin-top: 20px; padding: 15px; border: 2px solid #333; font-size: 24px; font-weight: bold; background-color: #f9f9f9; }
+        .alert { color: red; }
+    </style>
+</head>
+<body>
+    <h1>スプレッドシート連携 犯罪電卓</h1>
+
+    <fieldset>
+        <legend>介入人数を選択</legend>
+        <label>
+            <input type="radio" name="intervention" value="2_or_less" checked> 2人以下
+        </label>
+        <label>
+            <input type="radio" name="intervention" value="3_or_more"> 3人以上
+        </label>
+    </fieldset>
+
+    <h2>犯罪名の選択 (複数選択可)</h2>
+    
+    <div id="crime-list">
+        <label><input type="checkbox" name="crime" value="窃盗"> 窃盗</label><br>
+        <label><input type="checkbox" name="crime" value="器物損壊"> 器物損壊</label><br>
+        <label><input type="checkbox" name="crime" value="傷害"> 傷害</label><br>
+        <label><input type="checkbox" name="crime" value="恐喝"> 恐喝</label><br>
+        <label><input type="checkbox" name="crime" value="詐欺"> 詐欺</label><br>
+    </div>
+    
+    <button id="calculate-button">合計金額を計算</button>
+
+    <div id="result-display">
+        合計金額: <span id="result-amount">0</span> 円
+    </div>
+
+    <script>
+        // 🚨 【最重要】ここにあなたのGASウェブアプリのURLを貼り付けてください 🚨
+        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzb1-fgl8c7-rFzNLbVOsJNIL7LARlSLjZOkOp-S6NbLqo37kPR26RWTH7UOebeCPHD/exec';
+
+        document.getElementById('calculate-button').addEventListener('click', async () => {
+            const selectedCrimes = Array.from(document.querySelectorAll('input[name="crime"]:checked'))
+                                        .map(cb => cb.value);
+            const interventionType = document.querySelector('input[name="intervention"]:checked').value;
+            const resultAmountSpan = document.getElementById('result-amount');
+
+            resultAmountSpan.textContent = '計算中...';
+            resultAmountSpan.classList.remove('alert');
+
+            if (selectedCrimes.length === 0) {
+                resultAmountSpan.textContent = '0';
+                resultAmountSpan.classList.add('alert');
+                alert('犯罪名を一つ以上選択してください。');
+                return;
+            }
+
+            try {
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    // GASのdoPost関数はJSONではなく、form data形式で受け取ることが多いため、
+                    // ここではbodyの内容をJSON文字列として渡します。
+                    body: JSON.stringify({
+                        selected_crimes: selectedCrimes,
+                        intervention_type: interventionType
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`GAS Error: HTTP status ${response.status}`);
+                }
+                
+                // GASはJSONをテキストとして返すため、text()で受け取ってから手動でパース
+                const text = await response.text();
+                const data = JSON.parse(text);
+
+                if (data.error) {
+                     throw new Error(`GAS Script Error: ${data.error}`);
+                }
+
+                // 結果を表示
+                resultAmountSpan.textContent = data.total_amount.toLocaleString();
+
+            } catch (error) {
+                console.error('計算エラー:', error);
+                resultAmountSpan.textContent = 'エラー';
+                resultAmountSpan.classList.add('alert');
+                alert('計算中にエラーが発生しました。コンソールとGASのログを確認してください。');
+            }
+        });
+    </script>
+</body>
+</html>
