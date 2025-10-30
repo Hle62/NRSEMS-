@@ -68,7 +68,7 @@ h1, h2 {
     margin-bottom: 8px; 
     text-align: center;
 
-    /* * 変更点: はみ出す単語を強制的に改行する設定
+    /* * 変更点: はみ出す単語を強制的に改行する
      */
     overflow-wrap: break-word;
     word-wrap: break-word; /* (古いブラウザ用の互換設定) */
