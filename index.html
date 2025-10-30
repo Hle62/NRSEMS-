@@ -5,35 +5,23 @@
     <title>スプレッドシート連携 犯罪電卓</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
-        fieldset { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; }
-        legend { font-weight: bold; padding: 0 10px; }
-        #crime-list label { display: block; margin-bottom: 5px; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px; }
-        #result-display { margin-top: 20px; padding: 15px; border: 2px solid #333; font-size: 24px; font-weight: bold; background-color: #f9f9f9; }
+        h1 { border-bottom: 2px solid #ccc; padding-bottom: 10px; }
+        .crime-item { border: 1px solid #eee; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .crime-item label { margin-right: 15px; }
+        #crime-list { min-height: 50px; }
+        .loading { color: gray; font-style: italic; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px; margin-top: 10px; }
+        #result-display { margin-top: 20px; padding: 15px; border: 2px solid #333; font-size: 24px; font-weight: bold; background-color: #f9f9f9; text-align: center; }
         .alert { color: red; }
     </style>
 </head>
 <body>
     <h1>スプレッドシート連携 犯罪電卓</h1>
 
-    <fieldset>
-        <legend>介入人数を選択</legend>
-        <label>
-            <input type="radio" name="intervention" value="2_or_less" checked> 2人以下
-        </label>
-        <label>
-            <input type="radio" name="intervention" value="3_or_more"> 3人以上
-        </label>
-    </fieldset>
-
-    <h2>犯罪名の選択 (複数選択可)</h2>
+    <h2>犯罪ごとの介入人数と金額の選択</h2>
     
-    <div id="crime-list">
-        <label><input type="checkbox" name="crime" value="窃盗"> 窃盗</label><br>
-        <label><input type="checkbox" name="crime" value="器物損壊"> 器物損壊</label><br>
-        <label><input type="checkbox" name="crime" value="傷害"> 傷害</label><br>
-        <label><input type="checkbox" name="crime" value="恐喝"> 恐喝</label><br>
-        <label><input type="checkbox" name="crime" value="詐欺"> 詐欺</label><br>
+    <div id="crime-list" class="loading">
+        スプレッドシートから犯罪リストを読み込み中...
     </div>
     
     <button id="calculate-button">合計金額を計算</button>
@@ -43,44 +31,110 @@
     </div>
 
     <script>
-        // 🚨 【最重要】ここにあなたのGASウェブアプリのURLを貼り付けてください 🚨
+        // 🚨 【設定済み】デプロイされたGASウェブアプリのURL
         const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyB7GM9D-Rr9_Sx9zYcnhEfdrZe3VaI1YndoFQuCz-xcwbe6r5rKvOeKs6lnp_4xwaUSg/exec';
+        const crimeListElement = document.getElementById('crime-list');
+        const resultAmountSpan = document.getElementById('result-amount');
 
+        /**
+         * GASから犯罪名リストを取得し、UIを動的に構築する
+         */
+        async function fetchCrimesAndBuildUI() {
+            try {
+                // GETリクエストで犯罪名のリストを取得
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: 'GET'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP status ${response.status}`);
+                }
+                
+                const text = await response.text();
+                const data = JSON.parse(text);
+                
+                if (data.error || !data.crimeList) {
+                     throw new Error(`GAS Script Error: ${data.error || 'リストデータが見つかりません'}`);
+                }
+
+                crimeListElement.classList.remove('loading');
+                crimeListElement.innerHTML = '';
+                
+                // 犯罪名ごとにチェックボックスとラジオボタンを生成
+                data.crimeList.forEach((crimeName, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'crime-item';
+                    itemDiv.innerHTML = `
+                        <input type="checkbox" id="crime-${index}" name="crime" value="${crimeName}">
+                        <label for="crime-${index}"><strong>${crimeName}</strong></label>
+                        <br>
+                        <fieldset style="display: inline-block; margin-top: 5px;">
+                            <legend>介入人数</legend>
+                            <label>
+                                <input type="radio" name="intervention-${index}" value="2_or_less" checked> 2人以下
+                            </label>
+                            <label>
+                                <input type="radio" name="intervention-${index}" value="3_or_more"> 3人以上
+                            </label>
+                        </fieldset>
+                    `;
+                    crimeListElement.appendChild(itemDiv);
+                });
+
+            } catch (error) {
+                console.error('リスト取得エラー:', error);
+                crimeListElement.innerHTML = `<span class="alert">リストの読み込みに失敗しました: ${error.message}</span>`;
+            }
+        }
+
+        /**
+         * 計算を実行する
+         */
         document.getElementById('calculate-button').addEventListener('click', async () => {
-            const selectedCrimes = Array.from(document.querySelectorAll('input[name="crime"]:checked'))
-                                        .map(cb => cb.value);
-            const interventionType = document.querySelector('input[name="intervention"]:checked').value;
-            const resultAmountSpan = document.getElementById('result-amount');
+            const checkedCrimes = document.querySelectorAll('input[name="crime"]:checked');
+            const dataToSend = [];
 
             resultAmountSpan.textContent = '計算中...';
             resultAmountSpan.classList.remove('alert');
 
-            if (selectedCrimes.length === 0) {
+            if (checkedCrimes.length === 0) {
                 resultAmountSpan.textContent = '0';
-                resultAmountSpan.classList.add('alert');
                 alert('犯罪名を一つ以上選択してください。');
                 return;
             }
 
+            // 選択された犯罪名とその介入人数タイプを収集
+            checkedCrimes.forEach(checkbox => {
+                const crimeName = checkbox.value;
+                const index = checkbox.id.split('-')[1];
+                
+                // 該当するラジオボタングループから選択された値を取得
+                const selectedTypeElement = document.querySelector(`input[name="intervention-${index}"]:checked`);
+                const interventionType = selectedTypeElement ? selectedTypeElement.value : '2_or_less'; // デフォルト値
+
+                dataToSend.push({
+                    crime: crimeName,
+                    type: interventionType
+                });
+            });
+
             try {
+                // POSTリクエストでGASにデータを送信
                 const response = await fetch(GAS_WEB_APP_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
                     },
-                    // GASのdoPost関数はJSONではなく、form data形式で受け取ることが多いため、
-                    // ここではbodyの内容をJSON文字列として渡します。
                     body: JSON.stringify({
-                        selected_crimes: selectedCrimes,
-                        intervention_type: interventionType
+                        selected_crimes: dataToSend
                     })
                 });
 
                 if (!response.ok) {
-                    throw new Error(`GAS Error: HTTP status ${response.status}`);
+                    throw new Error(`HTTP status ${response.status}`);
                 }
                 
-                // GASはJSONをテキストとして返すため、text()で受け取ってから手動でパース
+                // GASからのJSONテキストをパース
                 const text = await response.text();
                 const data = JSON.parse(text);
 
@@ -98,6 +152,9 @@
                 alert('計算中にエラーが発生しました。コンソールとGASのログを確認してください。');
             }
         });
+
+        // ページロード時に犯罪リストを取得してUIを構築
+        fetchCrimesAndBuildUI();
     </script>
 </body>
 </html>
